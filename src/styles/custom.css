@@ -1,0 +1,351 @@
+:root {
+  --sl-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sl-font-system-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --sl-text-h1: 2rem;
+  --sl-text-h2: 1.5rem;
+  --sl-text-h3: 1.2rem;
+  --sl-text-h4: 1.05rem;
+
+  --sl-content-width: 50rem;
+
+  --sdp-accent: #0d9488;
+  --sdp-accent-hover: #0f766e;
+}
+
+:root[data-theme='light'] {
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.85);
+  --sl-color-text: #18181b;
+  --sl-color-text-accent: var(--sdp-accent);
+  --sl-color-hairline: #e5e5e5;
+  --sl-color-hairline-light: #f4f4f5;
+  --sl-color-accent: var(--sdp-accent);
+  --sl-color-accent-low: #f0fdfa;
+  --sl-color-accent-high: #134e4a;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-bg: #252529;
+  --sl-color-bg-sidebar: #2c2c30;
+  --sl-color-bg-nav: rgba(37, 37, 41, 0.85);
+  --sl-color-text: #f4f4f5;
+  --sl-color-text-accent: #5eead4;
+  --sl-color-hairline: #3a3a40;
+  --sl-color-hairline-light: #2f2f33;
+  --sl-color-accent: #5eead4;
+  --sl-color-accent-low: #0a3531;
+  --sl-color-accent-high: #99f6e4;
+
+  --sdp-accent: #5eead4;
+  --sdp-accent-hover: #99f6e4;
+}
+
+nav.sidebar,
+.sidebar-pane {
+  display: none;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+.right-sidebar-container,
+.right-sidebar {
+  max-width: 16rem;
+}
+
+@media (min-width: 50em) {
+  .main-frame {
+    --sl-sidebar-width: 0;
+  }
+
+  .main-pane > main > .content-panel,
+  .main-pane > main .content-panel {
+    padding-inline: 0.25rem;
+  }
+
+  .main-pane > main > .content-panel .sl-container,
+  .main-pane > main .sl-container {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
+    max-width: var(--sl-content-width);
+  }
+}
+
+header.header {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.site-title {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+.sl-markdown-content {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sl-markdown-content h2 {
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content h3 {
+  margin-top: 2rem;
+}
+
+.sl-markdown-content p,
+.sl-markdown-content li {
+  line-height: 1.7;
+}
+
+.sl-markdown-content strong {
+  font-weight: 600;
+}
+
+.sl-markdown-content p[align='center'] {
+  text-align: center;
+}
+
+.sl-markdown-content p[align='center'] img,
+.sl-markdown-content img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+:root[data-theme='dark'] .sl-markdown-content img {
+  background: #e6e8ec;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.sl-markdown-content blockquote {
+  border-left: 2px solid var(--sdp-accent);
+  padding: 0.25rem 0 0.25rem 1rem;
+  font-style: normal;
+  margin: 1.5rem 0;
+}
+
+.sl-markdown-content blockquote:first-of-type {
+  font-size: 0.95em;
+  opacity: 0.85;
+}
+
+.sl-markdown-content code:not(pre code) {
+  font-size: 0.875em;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  background: var(--sl-color-hairline-light);
+  border: 1px solid var(--sl-color-hairline);
+  font-family: var(--sl-font-system-mono);
+  color: var(--sl-color-text);
+}
+
+.sl-markdown-content pre {
+  border-radius: 8px;
+  font-size: 0.9em;
+  border: 1px solid var(--sl-color-hairline);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.sl-markdown-content table {
+  font-size: 0.95em;
+  border-collapse: collapse;
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+.sl-markdown-content table th {
+  font-weight: 600;
+  background: var(--sl-color-bg-sidebar);
+  text-align: left;
+}
+
+.sl-markdown-content table th,
+.sl-markdown-content table td {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content a {
+  color: var(--sdp-accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: color-mix(in srgb, var(--sdp-accent) 35%, transparent);
+  transition: text-decoration-color 0.15s, color 0.15s;
+}
+
+.sl-markdown-content a:hover {
+  color: var(--sdp-accent-hover);
+  text-decoration-color: var(--sdp-accent-hover);
+}
+
+site-search button[data-open-modal] {
+  background: var(--sl-color-bg-sidebar);
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 8px;
+  color: var(--sl-color-gray-2);
+  height: 2.25rem;
+  padding: 0 0.75rem 0 0.875rem;
+  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease,
+    box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+site-search button[data-open-modal]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--sdp-accent) 12%, transparent),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+site-search button[data-open-modal] svg {
+  transition: transform 0.3s ease, color 0.25s ease;
+}
+
+site-search button[data-open-modal]:hover {
+  border-color: var(--sdp-accent);
+  color: var(--sl-color-text);
+  background: var(--sl-color-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sdp-accent) 15%, transparent),
+    0 4px 12px -4px color-mix(in srgb, var(--sdp-accent) 30%, transparent);
+}
+
+site-search button[data-open-modal]:hover::before {
+  opacity: 1;
+}
+
+site-search button[data-open-modal]:hover svg {
+  color: var(--sdp-accent);
+  transform: scale(1.1) rotate(-8deg);
+}
+
+site-search button[data-open-modal]:active {
+  transform: scale(0.97);
+}
+
+site-search button[data-open-modal] kbd {
+  background: var(--sl-color-bg);
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 4px;
+  font-family: var(--sl-font-system-mono);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.35rem;
+  color: var(--sl-color-gray-2);
+  line-height: 1;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+}
+
+site-search button[data-open-modal]:hover kbd {
+  border-color: color-mix(in srgb, var(--sdp-accent) 50%, var(--sl-color-hairline));
+  color: var(--sdp-accent);
+}
+
+starlight-theme-select label {
+  --sl-select-width: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.25rem;
+  position: relative;
+  cursor: pointer;
+  margin-top: 0.6rem;
+}
+
+starlight-theme-select .label-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--sl-color-text);
+  pointer-events: none;
+}
+
+starlight-theme-select select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 0;
+}
+
+starlight-theme-select select option {
+  font-size: 0.875rem;
+}
+
+starlight-theme-select .caret {
+  display: none;
+}
+
+starlight-theme-select,
+starlight-lang-select {
+  margin: 0 0.5rem;
+}
+
+starlight-lang-select label {
+  display: inline-flex;
+  align-items: center;
+  height: 2.25rem;
+}
+
+starlight-lang-select .label-icon {
+  display: none;
+}
+
+header .header,
+header .right-group,
+header .sl-flex {
+  align-items: center;
+}
+
+header .right-group {
+  gap: 0.75rem;
+}
+
+header .social-icons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+}
+
+

@@ -62,3 +62,17 @@ scratch/
 
 # IPython Notebook templates
 template.ipynb
+
+# Site build
+node_modules/
+.astro/
+.output/
+.vercel/
+
+# Generated content
+src/content/docs/
+public/images/
+public/favicon.svg
+
+# IDE
+.idea
