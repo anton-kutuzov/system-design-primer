@@ -71,8 +71,7 @@ node_modules/
 
 # Generated content
 src/content/docs/
-public/images/
-public/favicon.svg
+public/
 
 # IDE
 .idea

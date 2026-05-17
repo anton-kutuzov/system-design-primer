@@ -1,6 +1,12 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import { readFileSync } from 'node:fs';
+
+let sidebarSlugs = [];
+try {
+  sidebarSlugs = JSON.parse(readFileSync('./src/sidebar.generated.json', 'utf-8'));
+} catch {}
 
 const repoFull = process.env.GITHUB_REPOSITORY ?? '';
 const ownerEnv = process.env.GITHUB_REPOSITORY_OWNER ?? '';
@@ -17,9 +23,9 @@ export default defineConfig({
       title: 'System Design Primer',
       description:
         'Учебник по проектированию крупномасштабных систем и подготовке к собеседованию по системному дизайну.',
-      defaultLocale: 'root',
+      defaultLocale: 'ru',
       locales: {
-        root: { label: 'RU', lang: 'ru' },
+        ru: { label: 'RU', lang: 'ru' },
         en: { label: 'EN', lang: 'en' },
         ja: { label: 'JA', lang: 'ja' },
         'zh-hans': { label: 'ZH-CN', lang: 'zh-CN' },
@@ -32,8 +38,8 @@ export default defineConfig({
         baseUrl: `https://github.com/${owner}/${repo}/edit/master/`,
       },
       lastUpdated: true,
-      pagination: false,
-      sidebar: [],
+      pagination: true,
+      sidebar: sidebarSlugs.map((slug) => ({ slug })),
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 4 },
       customCss: ['./src/styles/custom.css'],
       head: [
@@ -53,7 +59,7 @@ export default defineConfig({
           tag: 'link',
           attrs: {
             rel: 'stylesheet',
-            href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+            href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap',
           },
         },
         {
