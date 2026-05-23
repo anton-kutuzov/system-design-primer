@@ -28,10 +28,10 @@ export default defineConfig({
       title: 'System Design Primer',
       description:
         'Учебник по проектированию крупномасштабных систем и подготовке к собеседованию по системному дизайну.',
-      defaultLocale: 'ru',
+      defaultLocale: 'root',
       locales: {
+        root: { label: 'EN', lang: 'en' },
         ru: { label: 'RU', lang: 'ru' },
-        en: { label: 'EN', lang: 'en' },
         ja: { label: 'JA', lang: 'ja' },
         'zh-hans': { label: 'ZH-CN', lang: 'zh-CN' },
         'zh-tw': { label: 'ZH-TW', lang: 'zh-TW' },

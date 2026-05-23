@@ -66,12 +66,12 @@ function rewriteImagePaths(content) {
   return out;
 }
 
-function rewriteLectureLinks(content, currentLang) {
+function rewriteLectureLinks(content, currentLangDir) {
   return content.replace(
     /\]\(lectures\/([a-z0-9-]+)\.([a-z-]+)\.md(#[^)]+)?\)/g,
-    (_full, base, lang, hash = '') => {
-      const targetLang = lang === currentLang ? lang : currentLang;
-      return `](${basePrefix}/${targetLang}/lectures/${base}/${hash})`;
+    (_full, base, _lang, hash = '') => {
+      const langPart = currentLangDir ? `/${currentLangDir}` : '';
+      return `](${basePrefix}${langPart}/lectures/${base}/${hash})`;
     },
   );
 }
@@ -140,7 +140,9 @@ async function main() {
   }
 
   const langs = [
+    { code: 'en', dir: '', source: 'README.md', title: 'The System Design Primer', intro: 'Learn how to design large-scale systems. Prep for the system design interview.' },
     {
+      code: 'ru',
       dir: 'ru',
       source: 'README-ru.md',
       title: 'System Design Primer',
@@ -149,10 +151,9 @@ async function main() {
         'Учебник по проектированию крупномасштабных систем и подготовке к собеседованию по системному дизайну.\n\n' +
         'Используйте меню слева для навигации по разделам.',
     },
-    { dir: 'en', source: 'README.md', title: 'The System Design Primer', intro: 'Learn how to design large-scale systems. Prep for the system design interview.' },
-    { dir: 'ja', source: 'README-ja.md', title: 'システム設計入門', intro: '大規模なシステムを設計する方法を学ぶ。' },
-    { dir: 'zh-hans', source: 'README-zh-Hans.md', title: '系统设计入门', intro: '学习如何设计大型系统。' },
-    { dir: 'zh-tw', source: 'README-zh-TW.md', title: '系統設計入門', intro: '學習如何設計大規模系統。' },
+    { code: 'ja', dir: 'ja', source: 'README-ja.md', title: 'システム設計入門', intro: '大規模なシステムを設計する方法を学ぶ。' },
+    { code: 'zh-hans', dir: 'zh-hans', source: 'README-zh-Hans.md', title: '系统设计入门', intro: '学习如何设计大型系统。' },
+    { code: 'zh-tw', dir: 'zh-tw', source: 'README-zh-TW.md', title: '系統設計入門', intro: '學習如何設計大規模系統。' },
   ];
 
   for (const lang of langs) {
@@ -174,14 +175,15 @@ async function main() {
 async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
   const raw = await fs.readFile(path.join(root, lang.source), 'utf-8');
   const sections = parseSections(raw);
-  const dir = path.join(contentRoot, lang.dir);
+  const dir = lang.dir ? path.join(contentRoot, lang.dir) : contentRoot;
   await fs.mkdir(dir, { recursive: true });
+  const urlPrefix = lang.dir ? `${basePrefix}/${lang.dir}` : basePrefix;
 
   const anchorToPage = new Map();
   for (let i = 0; i < sections.length; i++) {
     const slug = slugs[i];
     if (!slug) continue;
-    const url = `${basePrefix}/${lang.dir}/${slug}/`;
+    const url = `${urlPrefix}/${slug}/`;
     anchorToPage.set(slug, url);
     const native = nativeSlug(sections[i].title);
     if (native && !anchorToPage.has(native)) anchorToPage.set(native, url);
@@ -195,7 +197,7 @@ async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
   if (englishSubToParent) {
     for (const [subSlug, parentSlug] of englishSubToParent) {
       if (!anchorToPage.has(subSlug)) {
-        anchorToPage.set(subSlug, `${basePrefix}/${lang.dir}/${parentSlug}/#${subSlug}`);
+        anchorToPage.set(subSlug, `${urlPrefix}/${parentSlug}/#${subSlug}`);
       }
     }
   }
@@ -220,7 +222,7 @@ async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
       'utf-8',
     );
   }
-  console.log(`  ${lang.dir}: ${sections.length} разделов`);
+  console.log(`  ${lang.code} (${lang.dir || 'root'}): ${sections.length} разделов`);
 }
 
 async function copyLectures(contentRoot, langs) {
@@ -250,9 +252,11 @@ async function copyLectures(contentRoot, langs) {
     const fallbackFile = enFile || perLocale.values().next().value;
 
     for (const lang of langs) {
-      const langDir = path.join(contentRoot, lang.dir, 'lectures');
+      const langDir = lang.dir
+        ? path.join(contentRoot, lang.dir, 'lectures')
+        : path.join(contentRoot, 'lectures');
       await fs.mkdir(langDir, { recursive: true });
-      const sourceFile = perLocale.get(lang.dir) || fallbackFile;
+      const sourceFile = perLocale.get(lang.code) || fallbackFile;
       const raw = await fs.readFile(path.join(lecturesSrc, sourceFile), 'utf-8');
 
       const titleMatch = raw.match(/^#\s+(.+?)\s*$/m);
