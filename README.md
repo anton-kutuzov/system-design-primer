@@ -377,15 +377,15 @@ First, you'll need a basic understanding of common principles, learning about wh
 
 ### Step 1: Review the scalability video lecture
 
-[Scalability Lecture at Harvard](https://www.youtube.com/watch?v=-W9F__D3oY4)
+[Scalability Lecture at Harvard](https://www.youtube.com/watch?v=-W9F__D3oY4) · [📝 Notes](lectures/cs75-scalability.en.md)
 
 * Topics covered:
-    * Vertical scaling
-    * Horizontal scaling
-    * Caching
-    * Load balancing
-    * Database replication
-    * Database partitioning
+    * [Vertical scaling](lectures/cs75-scalability.en.md#2-vertical-scaling)
+    * [Horizontal scaling](lectures/cs75-scalability.en.md#3-horizontal-scaling)
+    * [Caching](lectures/cs75-scalability.en.md#12-caching)
+    * [Load balancing](lectures/cs75-scalability.en.md#4-load-balancing)
+    * [Database replication](lectures/cs75-scalability.en.md#14-database-replication)
+    * [Database partitioning](lectures/cs75-scalability.en.md#16-partitioning)
 
 ### Step 2: Review the scalability article
 

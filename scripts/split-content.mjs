@@ -66,6 +66,16 @@ function rewriteImagePaths(content) {
   return out;
 }
 
+function rewriteLectureLinks(content, currentLang) {
+  return content.replace(
+    /\]\(lectures\/([a-z0-9-]+)\.([a-z-]+)\.md(#[^)]+)?\)/g,
+    (_full, base, lang, hash = '') => {
+      const targetLang = lang === currentLang ? lang : currentLang;
+      return `](${basePrefix}/${targetLang}/lectures/${base}/${hash})`;
+    },
+  );
+}
+
 function rewriteAnchors(content, anchorToPage) {
   return content.replace(/\]\(#([^)]+)\)/g, (full, anchor) => {
     const target =
@@ -149,14 +159,16 @@ async function main() {
     await splitLanguage(lang, contentRoot, slugs, englishSubToParent);
   }
 
+  const lectures = await copyLectures(contentRoot, langs);
+
   await fs.writeFile(
     path.join(root, 'src', 'sidebar.generated.json'),
-    JSON.stringify(slugs, null, 2),
+    JSON.stringify({ topics: slugs, lectures }, null, 2),
     'utf-8',
   );
 
   await copyAssets();
-  console.log(`✓ ${slugs.length} стабильных slug'ов для ${langs.length} локалей`);
+  console.log(`✓ ${slugs.length} тем + ${lectures.length} лекций для ${langs.length} локалей`);
 }
 
 async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
@@ -200,6 +212,7 @@ async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
     const sec = sections[i];
     let body = sec.lines.join('\n').replace(/^\n+/, '');
     body = rewriteImagePaths(body);
+    body = rewriteLectureLinks(body, lang.dir);
     body = rewriteAnchors(body, anchorToPage);
     await fs.writeFile(
       path.join(dir, `${slug}.md`),
@@ -208,6 +221,54 @@ async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
     );
   }
   console.log(`  ${lang.dir}: ${sections.length} разделов`);
+}
+
+async function copyLectures(contentRoot, langs) {
+  const lecturesSrc = path.join(root, 'lectures');
+  let entries;
+  try {
+    entries = await fs.readdir(lecturesSrc);
+  } catch {
+    return [];
+  }
+
+  const byBase = new Map();
+  for (const file of entries) {
+    const m = file.match(/^(.+)\.([a-z-]+)\.md$/);
+    if (!m) continue;
+    const [, base, locale] = m;
+    if (!byBase.has(base)) byBase.set(base, new Map());
+    byBase.get(base).set(locale, file);
+  }
+
+  const lectureSlugs = [];
+  for (const [base, perLocale] of byBase) {
+    const slug = `lectures/${base}`;
+    lectureSlugs.push(slug);
+
+    const enFile = perLocale.get('en');
+    const fallbackFile = enFile || perLocale.values().next().value;
+
+    for (const lang of langs) {
+      const langDir = path.join(contentRoot, lang.dir, 'lectures');
+      await fs.mkdir(langDir, { recursive: true });
+      const sourceFile = perLocale.get(lang.dir) || fallbackFile;
+      const raw = await fs.readFile(path.join(lecturesSrc, sourceFile), 'utf-8');
+
+      const titleMatch = raw.match(/^#\s+(.+?)\s*$/m);
+      const title = titleMatch ? titleMatch[1] : base;
+      const body = raw.replace(/^#\s+.+\n/, '').replace(/^\n+/, '');
+      const rewritten = rewriteImagePaths(body);
+
+      await fs.writeFile(
+        path.join(langDir, `${base}.md`),
+        frontmatter({ title }) + rewritten,
+        'utf-8',
+      );
+    }
+  }
+
+  return lectureSlugs;
 }
 
 async function copyAssets() {

@@ -3,9 +3,14 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { readFileSync } from 'node:fs';
 
-let sidebarSlugs = [];
+let sidebarData = { topics: [], lectures: [] };
 try {
-  sidebarSlugs = JSON.parse(readFileSync('./src/sidebar.generated.json', 'utf-8'));
+  const parsed = JSON.parse(readFileSync('./src/sidebar.generated.json', 'utf-8'));
+  if (Array.isArray(parsed)) {
+    sidebarData.topics = parsed;
+  } else {
+    sidebarData = { topics: parsed.topics ?? [], lectures: parsed.lectures ?? [] };
+  }
 } catch {}
 
 const repoFull = process.env.GITHUB_REPOSITORY ?? '';
@@ -39,7 +44,23 @@ export default defineConfig({
       },
       lastUpdated: true,
       pagination: true,
-      sidebar: sidebarSlugs.map((slug) => ({ slug })),
+      sidebar: [
+        ...sidebarData.topics.map((slug) => ({ slug })),
+        ...(sidebarData.lectures.length
+          ? [
+              {
+                label: 'Лекции',
+                translations: {
+                  en: 'Lectures',
+                  ja: '講義',
+                  'zh-CN': '讲座',
+                  'zh-TW': '講座',
+                },
+                items: sidebarData.lectures.map((slug) => ({ slug })),
+              },
+            ]
+          : []),
+      ],
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 4 },
       customCss: ['./src/styles/custom.css'],
       head: [
