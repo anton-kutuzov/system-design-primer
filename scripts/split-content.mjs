@@ -25,6 +25,14 @@ function latinSlug(text) {
   return tr.replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
+function nativeSlug(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/\s/g, '-');
+}
+
 function parseSections(markdown) {
   const lines = markdown.split('\n');
   const sections = [];
@@ -46,10 +54,7 @@ function collectSubAnchors(sectionLines) {
   const out = [];
   for (const line of sectionLines) {
     const m = line.match(/^#{3,6} (.+?)\s*$/);
-    if (m) {
-      const slug = latinSlug(m[1].trim()) || m[1].trim().toLowerCase().replace(/\s+/g, '-');
-      out.push(slug);
-    }
+    if (m) out.push(nativeSlug(m[1].trim()));
   }
   return out;
 }
@@ -63,7 +68,11 @@ function rewriteImagePaths(content) {
 
 function rewriteAnchors(content, anchorToPage) {
   return content.replace(/\]\(#([^)]+)\)/g, (full, anchor) => {
-    const target = anchorToPage.get(anchor);
+    const target =
+      anchorToPage.get(anchor) ??
+      anchorToPage.get(anchor.toLowerCase()) ??
+      anchorToPage.get(nativeSlug(anchor)) ??
+      anchorToPage.get(latinSlug(anchor));
     return target ? `](${target})` : full;
   });
 }
@@ -111,6 +120,15 @@ async function main() {
     slugs[i] = `${s}-${n}`;
   }
 
+  const englishSubToParent = new Map();
+  for (let i = 0; i < englishSections.length; i++) {
+    for (const subSlug of collectSubAnchors(englishSections[i].lines)) {
+      if (!englishSubToParent.has(subSlug)) {
+        englishSubToParent.set(subSlug, slugs[i]);
+      }
+    }
+  }
+
   const langs = [
     {
       dir: 'ru',
@@ -128,7 +146,7 @@ async function main() {
   ];
 
   for (const lang of langs) {
-    await splitLanguage(lang, contentRoot, slugs);
+    await splitLanguage(lang, contentRoot, slugs, englishSubToParent);
   }
 
   await fs.writeFile(
@@ -141,7 +159,7 @@ async function main() {
   console.log(`✓ ${slugs.length} стабильных slug'ов для ${langs.length} локалей`);
 }
 
-async function splitLanguage(lang, contentRoot, slugs) {
+async function splitLanguage(lang, contentRoot, slugs, englishSubToParent) {
   const raw = await fs.readFile(path.join(root, lang.source), 'utf-8');
   const sections = parseSections(raw);
   const dir = path.join(contentRoot, lang.dir);
@@ -151,11 +169,21 @@ async function splitLanguage(lang, contentRoot, slugs) {
   for (let i = 0; i < sections.length; i++) {
     const slug = slugs[i];
     if (!slug) continue;
-    const localSlug = latinSlug(sections[i].title);
-    if (localSlug) anchorToPage.set(localSlug, `${basePrefix}/${lang.dir}/${slug}/`);
+    const url = `${basePrefix}/${lang.dir}/${slug}/`;
+    anchorToPage.set(slug, url);
+    const native = nativeSlug(sections[i].title);
+    if (native && !anchorToPage.has(native)) anchorToPage.set(native, url);
     for (const subSlug of collectSubAnchors(sections[i].lines)) {
       if (!anchorToPage.has(subSlug)) {
-        anchorToPage.set(subSlug, `${basePrefix}/${lang.dir}/${slug}/#${subSlug}`);
+        anchorToPage.set(subSlug, `${url}#${subSlug}`);
+      }
+    }
+  }
+
+  if (englishSubToParent) {
+    for (const [subSlug, parentSlug] of englishSubToParent) {
+      if (!anchorToPage.has(subSlug)) {
+        anchorToPage.set(subSlug, `${basePrefix}/${lang.dir}/${parentSlug}/#${subSlug}`);
       }
     }
   }
